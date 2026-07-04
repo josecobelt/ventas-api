@@ -196,6 +196,8 @@ class VentaControllerIT extends AbstractIntegrationTest {
         mockMvc.perform(get("/api/ventas?clienteId=" + clienteId)
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.contenido[0].clienteId").value(clienteId));
+                // Se compara como int: JsonPath deserializa los enteros JSON como Integer,
+                // y compararlo directamente contra un Long (clienteId) fallaría por tipos distintos.
+                .andExpect(jsonPath("$.contenido[0].clienteId").value(clienteId.intValue()));
     }
 }
