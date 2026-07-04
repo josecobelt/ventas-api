@@ -1,0 +1,197 @@
+### Sistema de Ventas - API REST
+### Colección de ejemplos para VS Code (extensión "REST Client") o IntelliJ/WebStorm (HTTP Client nativo).
+###
+### Flujo sugerido:
+###   1. Ejecutar "Login" y copiar el token de la respuesta en la variable @token de abajo.
+###   2. Ejecutar el resto de las peticiones en orden.
+
+@baseUrl = http://localhost:8080/api
+@token = PEGA_AQUI_EL_TOKEN_DEVUELTO_POR_LOGIN
+
+### 1. Login - obtener token JWT (usuario sembrado por defecto: admin / admin123)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+### 2. Login con credenciales inválidas (debe responder 401)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "clave-incorrecta"
+}
+
+
+### ==================== CLIENTES ====================
+
+### 3. Crear cliente
+POST {{baseUrl}}/clientes
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "nombre": "Juan Pérez",
+  "email": "juan.perez@example.com",
+  "telefono": "555-1234"
+}
+
+### 4. Listar clientes (paginado)
+GET {{baseUrl}}/clientes?page=0&size=10
+Authorization: Bearer {{token}}
+
+### 5. Obtener cliente por id
+GET {{baseUrl}}/clientes/1
+Authorization: Bearer {{token}}
+
+### 6. Actualizar cliente
+PUT {{baseUrl}}/clientes/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "nombre": "Juan Pérez Actualizado",
+  "email": "juan.perez@example.com",
+  "telefono": "555-5678"
+}
+
+### 7. Baja lógica de cliente (activo pasa a false)
+DELETE {{baseUrl}}/clientes/1
+Authorization: Bearer {{token}}
+
+### 8. Baja física de cliente (falla con 400 si tiene ventas asociadas)
+DELETE {{baseUrl}}/clientes/1?permanente=true
+Authorization: Bearer {{token}}
+
+
+### ==================== CATEGORÍAS (extra) ====================
+
+### 9. Crear categoría
+POST {{baseUrl}}/categorias
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "nombre": "Electrónica",
+  "descripcion": "Artículos electrónicos y accesorios"
+}
+
+### 10. Listar categorías
+GET {{baseUrl}}/categorias?page=0&size=10
+Authorization: Bearer {{token}}
+
+
+### ==================== ARTÍCULOS ====================
+
+### 11. Crear artículo
+POST {{baseUrl}}/articulos
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "codigo": "ART-001",
+  "nombre": "Teclado mecánico",
+  "descripcion": "Teclado mecánico retroiluminado",
+  "precio": 899.99,
+  "stock": 25,
+  "categoriaId": 1
+}
+
+### 12. Crear artículo con código duplicado (debe responder 409)
+POST {{baseUrl}}/articulos
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "codigo": "ART-001",
+  "nombre": "Teclado mecánico (duplicado)",
+  "precio": 500.00,
+  "stock": 5
+}
+
+### 13. Listar artículos (paginado)
+GET {{baseUrl}}/articulos?page=0&size=10
+Authorization: Bearer {{token}}
+
+### 14. Obtener artículo por id
+GET {{baseUrl}}/articulos/1
+Authorization: Bearer {{token}}
+
+### 15. Actualizar artículo
+PUT {{baseUrl}}/articulos/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "codigo": "ART-001",
+  "nombre": "Teclado mecánico RGB",
+  "descripcion": "Teclado mecánico retroiluminado RGB",
+  "precio": 949.99,
+  "stock": 25,
+  "categoriaId": 1
+}
+
+### 16. Baja lógica de artículo
+DELETE {{baseUrl}}/articulos/1
+Authorization: Bearer {{token}}
+
+
+### ==================== VENTAS ====================
+
+### 17. Registrar una venta (el total se calcula en el servidor)
+POST {{baseUrl}}/ventas
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "clienteId": 1,
+  "detalles": [
+    { "articuloId": 1, "cantidad": 2 }
+  ]
+}
+
+### 18. Registrar venta con stock insuficiente (debe responder 409)
+POST {{baseUrl}}/ventas
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "clienteId": 1,
+  "detalles": [
+    { "articuloId": 1, "cantidad": 999999 }
+  ]
+}
+
+### 19. Listar ventas (paginado)
+GET {{baseUrl}}/ventas?page=0&size=10
+Authorization: Bearer {{token}}
+
+### 20. Listar ventas filtrando por cliente y estado
+GET {{baseUrl}}/ventas?clienteId=1&estado=ACTIVA
+Authorization: Bearer {{token}}
+
+### 21. Listar ventas filtrando por rango de fechas
+GET {{baseUrl}}/ventas?desde=2026-01-01T00:00:00&hasta=2026-12-31T23:59:59
+Authorization: Bearer {{token}}
+
+### 22. Obtener detalle de una venta
+GET {{baseUrl}}/ventas/1
+Authorization: Bearer {{token}}
+
+### 23. Cancelar una venta (repone el stock)
+PATCH {{baseUrl}}/ventas/1/cancelar
+Authorization: Bearer {{token}}
+
+### 24. Cancelar una venta ya cancelada (debe responder 400)
+PATCH {{baseUrl}}/ventas/1/cancelar
+Authorization: Bearer {{token}}
+
+
+### ==================== SEGURIDAD ====================
+
+### 25. Intentar listar clientes sin token (debe responder 401)
+GET {{baseUrl}}/clientes
