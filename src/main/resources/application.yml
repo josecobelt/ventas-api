@@ -1,0 +1,48 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: ventas-api
+
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:ventas_db}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+    username: ${DB_USER:ventas_user}
+    password: ${DB_PASSWORD:ventas_pass}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      # 'update' se eligió para simplificar la evaluación local del proyecto.
+      # En un entorno real se reemplazaría por migraciones versionadas (Flyway/Liquibase).
+      ddl-auto: update
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+
+  jackson:
+    time-zone: UTC
+    default-property-inclusion: non_null
+
+# Configuración del token JWT.
+# jwt.secret DEBE sobrescribirse mediante variable de entorno en cualquier entorno real.
+jwt:
+  secret: ${JWT_SECRET:CambiarEstaClaveSecretaEnProduccion2026VentasAPI-JWT}
+  expiration-ms: ${JWT_EXPIRATION_MS:3600000}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+  api-docs:
+    path: /v3/api-docs
+
+logging:
+  level:
+    root: INFO
+    org.hibernate.SQL: WARN
+    com.pruebatecnica.ventas: INFO
