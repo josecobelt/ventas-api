@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: ventas-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ventas_db
+      MYSQL_USER: ventas_user
+      MYSQL_PASSWORD: ventas_pass
+      MYSQL_ROOT_PASSWORD: root_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - ventas_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_pass"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: .
+    container_name: ventas-api
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ventas_db
+      DB_USER: ventas_user
+      DB_PASSWORD: ventas_pass
+      JWT_SECRET: CambiarEstaClaveSecretaEnProduccion2026VentasAPI-JWT
+      JWT_EXPIRATION_MS: 3600000
+    ports:
+      - "8080:8080"
+
+volumes:
+  ventas_mysql_data:
