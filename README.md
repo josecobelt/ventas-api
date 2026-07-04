@@ -119,9 +119,19 @@ Con la aplicación corriendo: **http://localhost:8080/swagger-ui.html**
 
 ## Colección de ejemplos
 
-Ver [`requests.http`](./requests.http) — pensado para la extensión **REST Client** de VS Code o el cliente
-HTTP nativo de IntelliJ/WebStorm. Incluye ejemplos de todos los endpoints, casos de error (409, 401, 400) y
-el flujo completo de login → crear cliente/artículo → registrar venta → cancelar venta.
+El enunciado permite Postman **o** `.http`; se incluyen **ambos** para no depender de una sola herramienta:
+
+- [`requests.http`](./requests.http) — para la extensión **REST Client** de VS Code o el cliente HTTP nativo
+  de IntelliJ/WebStorm.
+- [`postman_collection.json`](./postman_collection.json) — colección de **Postman** (v2.1), organizada en
+  carpetas (Autenticación, Clientes, Categorías, Artículos, Ventas, Seguridad). El request "Login" tiene un
+  script de test que guarda automáticamente el token JWT en la variable de colección `{{token}}`, que ya
+  queda disponible para el resto de los requests sin copiar/pegar nada a mano. Para usarla: **Import** en
+  Postman → seleccionar el archivo → correr primero "Login" → ejecutar el resto.
+
+Ambos cubren todos los endpoints, incluyendo casos de error (409 por duplicados, 401 sin token o con
+credenciales inválidas, 400 por validación, 409 por stock insuficiente) y el flujo completo:
+login → crear cliente/artículo → registrar venta → cancelar venta.
 
 ## Cómo correr los tests
 
@@ -133,9 +143,10 @@ mvn test
   base de datos. Cubren el cálculo del total de una venta, la validación/descuento de stock, la reposición
   de stock al cancelar, y las validaciones de duplicados (email de cliente, código de artículo).
 - **Pruebas de integración** (`src/test/.../controller/*IT.java`): `@SpringBootTest` + `MockMvc`, contra un
-  **MySQL real levantado con Testcontainers** (no H2 ni una base en memoria). **Requieren Docker
-  disponible** en la máquina donde se ejecutan los tests, porque Testcontainers levanta el contenedor de
-  MySQL automáticamente.
+  **MySQL real levantado con Testcontainers** (no H2 ni una base en memoria). Cubren los 5 controllers
+  (`AuthController`, `ClienteController`, `ArticuloController`, `CategoriaController`, `VentaController`).
+  **Requieren Docker disponible** en la máquina donde se ejecutan los tests, porque Testcontainers levanta
+  el contenedor de MySQL automáticamente.
 
 > Si `mvn test` se ejecuta en un entorno sin Docker, las pruebas de integración fallarán al no poder
 > levantar el contenedor. Las pruebas unitarias no se ven afectadas por esto.
