@@ -28,8 +28,7 @@ spring:
     time-zone: UTC
     default-property-inclusion: non_null
 
-# Configuración del token JWT.
-# jwt.secret DEBE sobrescribirse mediante variable de entorno en cualquier entorno real.
+
 jwt:
   secret: ${JWT_SECRET:CambiarEstaClaveSecretaEnProduccion2026VentasAPI-JWT}
   expiration-ms: ${JWT_EXPIRATION_MS:3600000}
