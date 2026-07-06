@@ -33,9 +33,10 @@ src/main/java/com/pruebatecnica/ventas/
 ```bash
 docker compose up --build
 ```
-**Aguas**: puede haber problemas con el puerto 3306 que es mysql que aveces se ejecuta ahi
 
 Esto levanta MySQL 8 y la API (puerto `8080`), con la base de datos `ventas_db` creada automáticamente.
+
+**Aguas**: puede haber problemas con el puerto 3306 que es mysql que aveces se ejecuta ahi
 
 ### Opción B: Maven + MySQL local
 
@@ -173,3 +174,21 @@ mvn test
 - `open-in-view: false` para evitar el antipatrón de dejar la sesión de Hibernate abierta durante el
   renderizado de la respuesta. Por eso todo el mapeo a DTO ocurre dentro de los métodos `@Transactional`
   de los servicios, mientras la sesión sigue activa.
+
+  ## Qué haría distinto con más tiempo
+
+- Migraciones versionadas. Hoy se usa `ddl-auto: update` por simplicidad de evaluación. En un proyecto
+  real usaría Flyway o Liquibase desde el principio.
+
+- Roles y autorización mejorados: Cualquier usuario autenticado puede hacer cualquier operación.
+  Con más tiempo agregaría roles para restringir la baja física de clientes/artículos solo a administradores.
+
+- CRUD mas completo
+
+- Refresh tokens / invalidación de tokens: el JWT es válido hasta que expira; no hay
+  forma de invalidarlo antes. Agregaría una lista de revocación o refresh tokens de corta duración.
+
+- Más filtros de búsqueda
+
+  Cobertura de tests adicional: casos de concurrencia real (dos hilos comprando el último artículo en
+  stock) y tests de seguridad con distintos roles una vez que existan.
