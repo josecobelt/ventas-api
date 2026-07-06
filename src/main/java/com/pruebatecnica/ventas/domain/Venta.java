@@ -1,5 +1,10 @@
 package com.pruebatecnica.ventas.domain;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,10 +19,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "ventas")
@@ -31,7 +32,7 @@ public class Venta {
      * Folio incremental y único de la venta. Se genera a partir del id
      * autogenerado una vez persistida la venta (ver VentaServiceImpl).
      */
-    @Column(nullable = false, unique = true, length = 20)
+    @Column(unique = true, length = 20)
     private String folio;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
